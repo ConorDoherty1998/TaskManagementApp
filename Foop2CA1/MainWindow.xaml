@@ -5,8 +5,263 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Foop2CA1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="500" Width="900" MinWidth="820" MinHeight="365" Activated="Window_Activated">
+    <Window.Resources>
+        <!--TASK TEMPLATE-->
+        <DataTemplate x:Key="TaskTemplate">
+            <Grid Height="120">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="170"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Path=Title}" FontSize="20" Margin="3" Foreground="White"/>
+                <TextBlock Text="{Binding Path=TaskCatagory}" Grid.Column="1" FontSize="20" Margin="3" HorizontalAlignment="Left" Foreground="White"></TextBlock>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="5" HorizontalAlignment="Right">
+                    <TextBlock Text="Responsibility -" Foreground="White"/>
+                    <TextBlock x:Name="txtbxResponsibility" Foreground="White" Text="{Binding Path=Responsibility}" Margin="0,0,0,5">
+                    </TextBlock>
+                    <TextBlock Name="txtbxUndelegated" Text="Undelegated" Visibility="Hidden" Width="0"/>
+                </StackPanel>
+
+                <TextBlock Text="{Binding Path=Desc}" Grid.Row="2" Grid.RowSpan="2" Grid.ColumnSpan="2" TextWrapping="Wrap" Foreground="White"></TextBlock>
+                <TextBlock Text="{Binding Path=DueDate}" HorizontalAlignment="Left" Grid.Row="1" Foreground="White"></TextBlock>
+                <StackPanel Grid.Column="3" Grid.Row="2" Orientation="Horizontal" Margin="5" HorizontalAlignment="Right">
+                    <TextBlock Text="Priority -" Foreground="White" Margin="5,0,5,0"/>
+                    <TextBlock Text="{Binding Path=TaskPriority}"  Foreground="White" Margin="0,0,0,5"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Grid.Row="3" Orientation="Horizontal" Margin="5" HorizontalAlignment="Right">
+                    <TextBlock Text="Labels -" Foreground="White" Margin="5,0,5,0"/>
+                    <TextBlock Text="{Binding Path=Labels.Count}" Foreground="White" Margin="0,0,0,5"/>
+                </StackPanel>
+
+                <Grid.Background>
+                    <SolidColorBrush Color="#1c1c1c"/>
+                </Grid.Background>
+            </Grid>
+        </DataTemplate>
+        <!--LISTBOX STYLE-->
+        <Style x:Key="ListBoxStyle1" TargetType="{x:Type ListBox}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Black" />
+        </Style>
+        <!--BUTTON STYLE-->
+        <Style TargetType="{x:Type Control}" x:Key="ControlButtonStyle">
+            <Setter Property="Margin" Value="12,0"/>
+            <Setter Property="Opacity" Value="0.7" />
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}">
+                        <Border BorderThickness="0" Background="{TemplateBinding Background}"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="1" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type ToggleButton}" x:Key="ToggleStack" BasedOn="{StaticResource ControlButtonStyle}" >
+            
+        </Style>
+        <!--SEARCHBAR STYLES-->
+        <Style x:Key="SearchName" TargetType="{x:Type TextBox}" >
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Text" Value="Search..."/>
+            <Setter Property="Padding" Value="10,0,0,0"/>
+            <Style.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="10" />
+                </Style>
+            </Style.Resources>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="true">
+                    <Setter Property="Text" Value=""/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SearchLabel" TargetType="{x:Type TextBox}" BasedOn="{StaticResource SearchName}" >
+            <Setter Property="Text" Value="#Label..." />
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="true">
+                    <Setter Property="Text" Value="#"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!--COMBO BOX STYLE-->
+        <BooleanToVisibilityConverter x:Key="StackVisibility" />
         
+        <!--COMPLETED TASKS TEMPLATE -->
+        <DataTemplate x:Key="CompletedTasksTemplate">
+            <Grid Height="50" Width="135" Background="#1c1c1c" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <TextBlock Text="{Binding Path=Responsibility.FirstName}" Margin="1" Foreground="White" FontSize="10"/>
+                    <TextBlock Text=" Completed " Margin="1" Foreground="White" FontSize="10"/>
+                    <TextBlock Text="{Binding Path=Title}" Margin="1" FontSize="10" Foreground="White"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="1" VerticalAlignment="Top">
+                    <TextBlock Text="On" FontSize="10" Foreground="White" Margin="1"/>
+                    <TextBlock Text="{Binding Path=DateCompleted}" Margin="1" FontSize="10" Foreground="White"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <!--START OF GRID-->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="70"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="150"/>
+        </Grid.ColumnDefinitions>
+        <Rectangle Grid.Row="3" Grid.ColumnSpan="3" Fill="#444444" />
+        <Border Width="1" Grid.Column="2" Grid.RowSpan="4" HorizontalAlignment="Left" Background="White" Opacity="0.2"></Border>
+        <Border Width="1" Grid.Column="0" Grid.RowSpan="4" HorizontalAlignment="Right" Background="White" Opacity="0.2"></Border>
+        <ListBox HorizontalContentAlignment="Stretch" BorderThickness="1" BorderBrush="Black" Name="lstbxTasks" Background="#0f0f0f"  VirtualizingPanel.ScrollUnit="Pixel" ItemTemplate="{StaticResource TaskTemplate}" Grid.Column="1" Grid.RowSpan="3" MinWidth="400" />
+        
+        <!--BUTTON SECTION-->
+        <StackPanel Grid.Row="3" Margin="0,10,0,0">
+            <Button x:Name="btnAddTask" Style="{StaticResource ControlButtonStyle}" Grid.Row="1" Width="40" Height="40" Click="BtnAddTask_Click">
+                <Border CornerRadius="100"/>
+                <Button.Background>
+                    <ImageBrush ImageSource="Images/Add_256.png"/>
+                </Button.Background>
+            </Button>
+            <TextBlock Text="Add Task" HorizontalAlignment="Center" Foreground="White"/>
+        </StackPanel>
+        <Button Name="btnSaveTask" Style="{StaticResource ControlButtonStyle}" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="3" Width="30" Height="30" Click="BtnSaveTask_Click">
+            <Border CornerRadius="100"/>
+            <Button.Background>
+                <ImageBrush ImageSource="Images/Save_256.png"/>
+            </Button.Background>
+        </Button>
+        <Button Name="btnDelegate" Style="{StaticResource ControlButtonStyle}" Grid.Column="1" HorizontalAlignment="Right" Grid.Row="3" Width="30" Height="30" Click="BtnDelegate_Click">
+            <Border CornerRadius="100"/>
+            <Button.Background>
+                <ImageBrush ImageSource="Images/Delegate_256.png"/>
+            </Button.Background>
+        </Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="3" >
+            <Button Name="btnEditTask" Style="{StaticResource ControlButtonStyle}" Width="30" Height="30" Click="BtnEditTask_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="Images/Edit_256.png" />
+                </Button.Background>
+            </Button>
+
+            <Button Name="btnCompleteTask" Style="{StaticResource ControlButtonStyle}" Width="60" Height="60" Click="BtnCompleteTask_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="Images/Complete_256.png"/>
+                </Button.Background>
+            </Button>
+            <Button Name="btnDeleteTask" Style="{StaticResource ControlButtonStyle}" Width="30" Height="30" Click="BtnDeleteTask_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="Images/Bin_256.png"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+        
+
+
+        <!--FILTER SECTION-->
+        <Border Grid.Row="1" Height="1" VerticalAlignment="Bottom" Background="White" Opacity="0.3"/>
+        <StackPanel Margin="10">
+            <TextBlock Text="Filter" FontSize="22" Foreground="White" HorizontalAlignment="Center"/>
+            <Border Height="2" Background="White" CornerRadius="100" Margin="0,0,0,10"/>
+            <TextBox Name="SearchName" Style="{StaticResource SearchName}" Grid.Column="1" VerticalAlignment="Center" TextChanged="SearchName_TextChanged"/>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Margin="10" VerticalScrollBarVisibility="Hidden">
+            <StackPanel Margin="0,0,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0" Height="25" Grid.ColumnSpan="2" >
+                    <TextBlock Text="Category" FontSize="18" VerticalAlignment="Center" Foreground="White"/>
+
+                    <ToggleButton Name="btnCollapseFilter" Style="{StaticResource ControlButtonStyle}" Height="10" Width="15" Margin="10,5,10,0">
+                        <ToggleButton.Background>
+                            <ImageBrush ImageSource="Images/Collapse_256.png" />
+                        </ToggleButton.Background>
+                    </ToggleButton>
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding ElementName=btnCollapseFilter, Path=IsChecked, Converter={StaticResource StackVisibility}}">
+                    <RadioButton Content="All" FontSize="12" Foreground="White"  Margin="5,5,3,5" Name="rdbtnCategoryAll" GroupName="Category" Checked="RadioButtonCategory_Checked"/>
+                    <RadioButton Content="Database" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnCategoryDB" GroupName="Category" Checked="RadioButtonCategory_Checked"/>
+                    <RadioButton Content="Front End" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnCategoryFE" GroupName="Category" Checked="RadioButtonCategory_Checked"/>
+                    <RadioButton Content="Back End" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnCategoryBE" GroupName="Category" Checked="RadioButtonCategory_Checked"/>
+                    <RadioButton Content="Servers" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnCategoryServers" GroupName="Category" Checked="RadioButtonCategory_Checked"/>
+                </StackPanel>
+                <Border Height="2" Background="White" CornerRadius="20"/>
+
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0" Height="25" Grid.ColumnSpan="2" >
+                    <TextBlock Text="Due Date" FontSize="18" VerticalAlignment="Center" Foreground="White"/>
+
+                    <ToggleButton Name="btnCollapseDueDate" Style="{StaticResource ControlButtonStyle}" Height="10" Width="15" Margin="10,5,10,0">
+                        <ToggleButton.Background>
+                            <ImageBrush ImageSource="Images/Collapse_256.png" />
+                        </ToggleButton.Background>
+                    </ToggleButton>
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding ElementName=btnCollapseDueDate, Path=IsChecked, Converter={StaticResource StackVisibility}}">
+                    <RadioButton Content="All" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnDueDateAll" GroupName="DueDate" Checked="RadioButtonDate_Checked"/>
+                    <RadioButton Content="Tomorrow" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnDueDateTomorrow" GroupName="DueDate" Checked="RadioButtonDate_Checked"/>
+                    <RadioButton Content="This Week" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnDueDateThisWeek" GroupName="DueDate" Checked="RadioButtonDate_Checked"/>
+                    <RadioButton Content="This Month" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnDueDateThisMonth" GroupName="DueDate" Checked="RadioButtonDate_Checked"/>
+                </StackPanel>
+                <Border Height="2" Background="White" CornerRadius="20"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0" Height="25" Grid.ColumnSpan="2" >
+                    <TextBlock Text="Priority" FontSize="18" VerticalAlignment="Center" Foreground="White"/>
+
+                    <ToggleButton Name="btnCollapsePriority" Style="{StaticResource ControlButtonStyle}" Height="10" Width="15" Margin="10,5,10,0">
+                        <ToggleButton.Background>
+                            <ImageBrush ImageSource="Images/Collapse_256.png" />
+                        </ToggleButton.Background>
+                    </ToggleButton>
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding ElementName=btnCollapsePriority, Path=IsChecked, Converter={StaticResource StackVisibility}}">
+                    <RadioButton Content="All" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnPriorityAll" GroupName="Priority" Checked="RadioButtonPriority_Checked"/>
+                    <RadioButton Content="High" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnPriorityHigh" GroupName="Priority" Checked="RadioButtonPriority_Checked"/>
+                    <RadioButton Content="Mid" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnPriorityMid" GroupName="Priority" Checked="RadioButtonPriority_Checked"/>
+                    <RadioButton Content="Low" FontSize="12" Foreground="White" Margin="5,5,3,5" Name="rdbtnPriorityLow" GroupName="Priority" Checked="RadioButtonPriority_Checked"/>
+                </StackPanel>
+                <Border Height="2" Background="White" CornerRadius="20"/>
+            </StackPanel>
+        </ScrollViewer>
+        <StackPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="10">
+            <TextBlock Text="Search Label" HorizontalAlignment="Center" FontSize="14" VerticalAlignment="Center" Margin="0,0,0,0" Foreground="White"/>
+            <TextBox Name="SearchLabel" Style="{StaticResource SearchLabel}" HorizontalAlignment="Center" Width="100" TextChanged="SearchLabel_TextChanged"/>
+        </StackPanel>
+
+        <!--COMPLETED TASK SECTION-->
+        <StackPanel Grid.Column="3" Margin="10">
+            <TextBlock Text="History" FontSize="22" Foreground="White" HorizontalAlignment="Center"/>
+            <Border Height="2" Background="White" CornerRadius="100" Margin="0,0,0,10"/>
+        </StackPanel>
+        <ListBox ItemTemplate="{StaticResource CompletedTasksTemplate}" Name="lstbxCompletedTasks" Grid.Column="2" Grid.Row="1" Background="#0f0f0f" Grid.RowSpan="2">
+            
+        </ListBox>
+        <Grid.Background>
+            <SolidColorBrush Color="#1c1c1c"/>
+        </Grid.Background>
     </Grid>
 </Window>
